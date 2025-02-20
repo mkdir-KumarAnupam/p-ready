@@ -1,9 +1,9 @@
-
-
 import Link from "next/link";
 import Image from "next/image";
 import { db } from "~/server/db";
 import { posts } from "~/server/db/schema";
+
+export const dynamic = 'force-dynamic';
 const mockUrls = [
   "https://9jv9plfoq5.ufs.sh/f/0lyXt49U6bSwLSf8J1HXrdlVDik2gIYQGzwt3eLovRTN9ySW",
   "https://9jv9plfoq5.ufs.sh/f/0lyXt49U6bSwLMaCN8HXrdlVDik2gIYQGzwt3eLovRTN9ySW",
