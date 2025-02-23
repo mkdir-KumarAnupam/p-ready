@@ -50,7 +50,7 @@ function Images () {
                     </div>
                   )}
                   {image.favourited && (
-                    <div className="absolute top-2 left-2 bg-transparent border-solid border-white border-1 rounded-full text-white text-xs px-2 py-1 rounded-md">
+                    <div className="absolute top-2 left-2 bg-transparent border-solid border-yellow-500 border-2 rounded-full text-white text-xs px-2 py-1 rounded-md">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"

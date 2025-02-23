@@ -116,7 +116,7 @@ export default async function FullPageImageView(props: {id: number}) {
 
             <div className="text-white p-2">
               <form action={handleFavourite}>
-                <Button type="submit" variant="outline">Favourite</Button>
+                <Button type="submit" variant="outline">{image.favourited ? "Unfavourite" : "Favourite"}</Button>
               </form>
             </div>
             <div className="text-white p-2">
