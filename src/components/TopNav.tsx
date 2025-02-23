@@ -31,7 +31,7 @@ function TopNav() {
                 </DialogHeader>
                 <form action={handleCreateFolder}>
                   <input type="text" name="folderName" placeholder="Folder Name" className="bg-transparent border rounded p-2 text-white"/>
-                  <Button type="submit" variant="outline">Create</Button>
+                  <Button type="submit" variant="outline" className="p-5">Create</Button>
                 </form>
               </DialogContent>
             </Dialog>
