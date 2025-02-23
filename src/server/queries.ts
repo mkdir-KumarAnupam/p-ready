@@ -13,9 +13,10 @@ export async function getMyImages() {
     const userInfo = await currentUser();
     const email = userInfo?.emailAddresses[0]?.emailAddress;
 
-    if (!user.userId) return [];
+    if (!user.userId || !email) return [];
 
-    const images = await db.query.images.findMany({
+    // Get user's own images
+    const ownImages = await db.query.images.findMany({
         where: (image) => eq(image.userId, user.userId),
         with: {
             shares: true,
@@ -23,10 +24,32 @@ export async function getMyImages() {
         }
     });
 
-    return images.map(image => ({
-        ...image,
-        isShared: image.shares.some(share => share.sharedWith === email)
-    }));
+    // Get images shared with the user
+    const sharedImages = await db.query.imageShares.findMany({
+        where: (share) => eq(share.sharedWith, email),
+        with: {
+            image: {
+                with: {
+                    shares: true,
+                    folders: true
+                }
+            }
+        }
+    });
+
+    // Combine and format both sets of images
+    const allImages = [
+        ...ownImages.map(image => ({
+            ...image,
+            isShared: false
+        })),
+        ...sharedImages.map(share => ({
+            ...share.image,
+            isShared: true
+        }))
+    ];
+
+    return allImages;
 }
 
 export async function getImage(id: number) {
