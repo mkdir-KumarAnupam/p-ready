@@ -49,6 +49,23 @@ function Images () {
                       Shared
                     </div>
                   )}
+                  {image.favourited && (
+                    <div className="absolute top-2 left-2 bg-transparent border-solid border-white border-1 rounded-full text-white text-xs px-2 py-1 rounded-md">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="w-4 h-4"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M12 17.27l6.18 3.73-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73-1.64 7.03L12 17.27z"
+                        clipRule="evenodd"
+                        className="text-yellow-500"
+                      />
+                    </svg>
+                    </div>
+                  )}
                 </Link>
               </div>
             </HoverCardTrigger>
@@ -63,6 +80,8 @@ function Images () {
               } {image.isShared && '(Shared)'}
             </HoverCardContent>
           </HoverCard>
+
+          
         </div>
       ))}
 

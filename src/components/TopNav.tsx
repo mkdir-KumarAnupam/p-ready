@@ -4,12 +4,14 @@ import { SignedOut, SignInButton } from "@clerk/nextjs";
 import { UserButton } from "@clerk/nextjs";
 import { UploadButton } from "@uploadthing/react";
 import type { OurFileRouter } from "~/app/api/uploadthing/core";
-import "@uploadthing/react/styles.css";
+import "@uploadthing/react/styles.css"; 
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "~/components/ui/dialog";
 import { handleCreateFolder } from "~/server/actions";
+import { Input } from "@/components/ui/input"
+
 
 function TopNav() {
     const router = useRouter();
@@ -33,6 +35,7 @@ function TopNav() {
                 </form>
               </DialogContent>
             </Dialog>
+            
             <UploadButton<OurFileRouter>
               endpoint="imageUploader"
               

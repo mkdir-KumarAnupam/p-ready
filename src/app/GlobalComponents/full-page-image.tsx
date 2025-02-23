@@ -1,5 +1,5 @@
 import { clerkClient } from "@clerk/nextjs/server";
-import { getImage, deleteImage, shareImage, renameImage, moveImageToFolder } from "~/server/queries";
+import { getImage, deleteImage, shareImage, renameImage, moveImageToFolder, favouriteImage } from "~/server/queries";
 import Image from "next/image";
 import { Button } from "~/components/ui/button";
 import { redirect } from "next/navigation";
@@ -53,6 +53,11 @@ export default async function FullPageImageView(props: {id: number}) {
     const folderName = formData.get('folderName')?.toString();
     if (!folderName) return;
     await moveImageToFolder(imageId, folderName);
+  }
+
+  async function handleFavourite(formData: FormData) {
+    "use server";
+    await favouriteImage(imageId);
   }
 
   return (
@@ -109,6 +114,11 @@ export default async function FullPageImageView(props: {id: number}) {
               </form>
             </div>
 
+            <div className="text-white p-2">
+              <form action={handleFavourite}>
+                <Button type="submit" variant="outline">Favourite</Button>
+              </form>
+            </div>
             <div className="text-white p-2">
               <Dialog>
                 <DialogTrigger asChild>

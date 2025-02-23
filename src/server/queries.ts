@@ -1,7 +1,6 @@
-import 'server-only'
 import { db } from './db';
 import { auth, currentUser } from '@clerk/nextjs/server';
-import { eq, and, or } from 'drizzle-orm';
+import { eq, and, or, like } from 'drizzle-orm';
 import { images, folders, imageShares, imageFolders } from './db/schema';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
@@ -9,48 +8,55 @@ import { revalidatePath } from 'next/cache';
 
 
 export async function getMyImages() {
-    const user = await auth();
-    const userInfo = await currentUser();
-    const email = userInfo?.emailAddresses[0]?.emailAddress;
+  const user = await auth();
+  const userInfo = await currentUser();
+  const email = userInfo?.emailAddresses[0]?.emailAddress;
 
-    if (!user.userId || !email) return [];
+  if (!user.userId || !email) return [];
 
-    // Get user's own images
-    const ownImages = await db.query.images.findMany({
-        where: (image) => eq(image.userId, user.userId),
-        with: {
-            shares: true,
-            folders: true
-        }
-    });
+  // Get user's own images
+  const ownImages = await db.query.images.findMany({
+      where: (image) => eq(image.userId, user.userId),
+      with: {
+          shares: true,
+          folders: true
+      }
+  });
 
-    // Get images shared with the user
-    const sharedImages = await db.query.imageShares.findMany({
-        where: (share) => eq(share.sharedWith, email),
-        with: {
-            image: {
-                with: {
-                    shares: true,
-                    folders: true
-                }
-            }
-        }
-    });
+  // Get images shared with the user
+  const sharedImages = await db.query.imageShares.findMany({
+      where: (share) => eq(share.sharedWith, email),
+      with: {
+          image: {
+              with: {
+                  shares: true,
+                  folders: true
+              }
+          }
+      }
+  });
 
-    // Combine and format both sets of images
-    const allImages = [
-        ...ownImages.map(image => ({
-            ...image,
-            isShared: false
-        })),
-        ...sharedImages.map(share => ({
-            ...share.image,
-            isShared: true
-        }))
-    ];
+  // Combine and format both sets of images
+  const allImages = [
+      ...ownImages.map(image => ({
+          ...image,
+          isShared: false
+      })),
+      ...sharedImages.map(share => ({
+          ...share.image,
+          isShared: true
+      }))
+  ];
 
-    return allImages;
+  // Sort images: Favourites first, then by creation date (newest first)
+  return allImages.sort((a, b) => {
+      if (a.favourited === b.favourited) {
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // Sort by date descending
+      }
+      return a.favourited ? -1 : 1; // Favourited images first
+  });
 }
+
 
 export async function getImage(id: number) {
     const user = await auth();
@@ -241,6 +247,29 @@ export async function getFolderImages(folderId: number) {
   return folderImages.map(fi => fi.image);
 }
 
+export async function favouriteImage(imageId: number) {
+  const user = await auth();
+
+  if (!user.userId) {
+    throw new Error('Not authorized');
+  }
+
+  const currentImage = await db.query.images.findFirst({
+    where: (image) => eq(image.id, imageId)
+  });
+
+  if (!currentImage) {
+    throw new Error('Image not found');
+  }
+
+  await db.update(images)
+    .set({ favourited: !currentImage.favourited })
+    .where(and(eq(images.id, imageId), eq(images.userId, user.userId)));
+
+
+  revalidatePath('/');  
+  revalidatePath(`/img/${imageId}`);
+}
 
 
 
