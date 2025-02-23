@@ -3,6 +3,7 @@ import { UploadThingError } from "uploadthing/server";
 import { auth as clerkAuth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { images } from "~/server/db/schema";
+import { ratelimit } from "~/server/ratelimit";
 const f = createUploadthing();
 
 // FileRouter for your app, can contain multiple FileRoutes
@@ -25,6 +26,18 @@ export const ourFileRouter = {
 
       // If you throw, the user will not be able to upload
       if (!user.userId) throw new Error("Unauthorized");
+
+      try {
+        const { success } = await ratelimit.limit(user.userId);
+
+        if (!success) {
+          console.error("Rate limit exceeded for userId:", user.userId);
+          throw new Error("Rate limit exceeded");
+        }
+      } catch (error) {
+        console.error("Error during rate limiting:", error);
+        throw new Error("Rate limiting failed");
+      }
 
       // Whatever is returned here is accessible in onUploadComplete as `metadata`
       return { userId: user.userId };
